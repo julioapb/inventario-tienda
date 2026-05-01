@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="container mt-4">
+
+    <div class="d-flex justify-content-between mb-3">
+        <h3>Inventario</h3>
+        <a href="/inventario/entrada" class="btn btn-success">
+            + Entrada de mercancía
+        </a>
+    </div>
+    <form method="GET" class="mb-3 d-flex">
+        <input type="text" name="q" class="form-control me-2"
+            placeholder="Buscar producto"
+            value="{{ buscar }}">
+        <button class="btn btn-primary">Buscar</button>
+    </form>
+    <table class="table table-bordered table-hover">
+        <thead class="table-dark">
+            <tr>
+                <th>Producto</th>
+                <th>Stock actual</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for p in productos %}
+            <tr>
+                <td>{{ p[0] }}</td>
+                <td>{{ p[1] if p[1] else 0 }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <nav class="mt-3">
+        <ul class="pagination">
+            {% for p in range(1, total_paginas + 1) %}
+                <li class="page-item {% if p == pagina %}active{% endif %}">
+                    <a class="page-link" href="?page={{ p }}&q={{ buscar }}">
+                        {{ p }}
+                    </a>
+                </li>
+            {% endfor %}
+        </ul>
+    </nav>
+</div>
+
+{% endblock %}

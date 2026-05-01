@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="container mt-4">
+
+    <h3>Historial de cierres de caja</h3>
+
+    <table class="table table-bordered table-hover mt-3">
+        <thead class="table-dark">
+            <tr>
+                <th>Fecha</th>
+                <th>Total</th>
+                <th>Efectivo</th>
+                <th>Tarjeta</th>
+                <th>Ventas</th>
+                <th>Usuario</th>
+            </tr>
+        </thead>
+        <tbody>
+
+            {% for c in cierres %}
+            <tr>
+                <td>{{ c[0] }}</td>
+                <td>${{ "{:,.0f}".format(c[1]) | replace(",", ".") }}</td>
+                <td>${{ "{:,.0f}".format(c[2]) | replace(",", ".") }}</td>
+                <td>${{ "{:,.0f}".format(c[3]) | replace(",", ".") }}</td>
+                <td>{{ c[4] }}</td>
+                <td>{{ c[5] }}</td>
+            </tr>
+            {% endfor %}
+
+        </tbody>
+    </table>
+
+</div>
+
+{% endblock %}

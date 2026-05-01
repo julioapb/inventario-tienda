@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+
+{% block title %}Cierre de Caja{% endblock %}
+
+{% block content %}
+
+<div class="container mt-4">
+
+    <h3>Cierre de caja</h3>
+
+    <div class="card p-4 shadow-sm">
+
+        <h5 class="mb-3">Resumen del día</h5>
+
+        <p><strong>Total vendido:</strong> ${{ "{:,.0f}".format(total) | replace(",", ".") }}</p>
+        <p><strong>Efectivo:</strong> ${{ "{:,.0f}".format(efectivo) | replace(",", ".") }}</p>
+        <p><strong>Tarjeta:</strong> ${{ "{:,.0f}".format(tarjeta) | replace(",", ".") }}</p>
+        <p><strong>Número de ventas:</strong> {{ cantidad }}</p>
+
+        <hr>
+
+        <button class="btn btn-primary" onclick="cerrarCaja()">
+            Cerrar caja
+        </button>
+
+    </div>
+
+</div>
+
+<script>
+
+function cerrarCaja() {
+
+    if (!confirm("¿Seguro que deseas cerrar la caja del día?")) {
+        return;
+    }
+
+    fetch('/cerrar_caja', {
+        method: 'POST'
+    })
+    .then(res => res.json())
+    .then(data => {
+
+        if (!data.ok) {
+            alert(data.error);
+            return;
+        }
+
+        alert(data.mensaje);
+        location.reload();
+
+    })
+    .catch(err => {
+        console.error(err);
+        alert("Error al cerrar la caja");
+    });
+}
+
+</script>
+
+{% endblock %}

@@ -1,0 +1,21 @@
+# Entorno virtual
+entorno/
+venv/
+env/
+
+# Python
+__pycache__/
+*.pyc
+
+# Configuración sensible
+.env
+
+# Base de datos local (si tienes archivos)
+*.db
+
+# Logs
+*.log
+
+# Sistema
+.DS_Store
+Thumbs.db

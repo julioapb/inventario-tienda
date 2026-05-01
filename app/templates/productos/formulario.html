@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+
+{% block title %}Producto{% endblock %}
+
+{% block content %}
+
+<div class="container mt-4">
+
+    <h3>{{ titulo }}</h3>
+
+    <form method="POST">
+
+        <div class="mb-3">
+            <label>Nombre</label>
+            <input type="text" name="nombre" class="form-control" 
+                   value="{{ producto[1] if producto else '' }}" required>
+        </div>
+
+        <div class="mb-3">
+            <label>SKU</label>
+            <input type="text" name="sku" class="form-control"
+                   value="{{ producto[2] if producto else '' }}">
+        </div>
+
+        <div class="mb-3">
+            <label>Precio compra</label>
+            <input type="number" step="0.01" name="precio_compra" class="form-control"
+                   value="{{ producto[3] if producto else '' }}" required>
+        </div>
+
+        <div class="mb-3">
+            <label>Precio venta</label>
+            <input type="number" step="0.01" name="precio_venta" class="form-control"
+                   value="{{ producto[4] if producto else '' }}" required>
+        </div>
+
+        <button class="btn btn-success">Guardar</button>
+        <a href="/productos" class="btn btn-secondary">Volver</a>
+
+    </form>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,242 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="container mt-4">
+
+    <h3>Caja</h3>
+
+    <!-- BUSCADOR -->
+    <input type="text" id="buscador" class="form-control mb-3" placeholder="Buscar producto...">
+
+    <!-- RESULTADOS -->
+    <div id="resultados"></div>
+
+    <hr>
+
+    <!-- CARRITO -->
+    <h5>Carrito</h5>
+
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Producto</th>
+                <th>Cantidad</th>
+                <th>Precio</th>
+                <th>Subtotal</th>
+            </tr>
+        </thead>
+        <tbody id="carrito"></tbody>
+    </table>
+
+    <div class="mt-3">
+        <label><strong>Método de pago</strong></label>
+        <select id="metodo_pago" class="form-control">
+            <option value="efectivo">Efectivo</option>
+            <option value="tarjeta">Tarjeta</option>
+        </select>
+    </div>
+
+    <div class="mt-3" id="zona_efectivo">
+        <label>Dinero recibido</label>
+        <input type="number" id="recibido" class="form-control">
+
+        <p class="mt-2">
+            Cambio: $<span id="cambio">0</span>
+        </p>
+    </div>
+
+    <div class="card shadow-sm p-3 mt-4">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h4 class="mb-0">
+                    Total: $<span id="total">0.00</span>
+                </h4>
+            </div>
+            <button class="btn btn-success btn-lg px-5" onclick="pagar()">
+                Pagar
+            </button>
+        </div>
+    </div><br>
+</div>
+
+<script>
+
+function formatCOP(valor) {
+    return valor.toLocaleString('es-CO', {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0
+    });
+}
+
+let carrito = [];
+
+// Buscar productos
+document.getElementById("buscador").addEventListener("keyup", function() {
+
+    let query = this.value.trim();
+
+    // 👉 SI ESTÁ VACÍO, NO BUSCAR
+    if (query === "") {
+        document.getElementById("resultados").innerHTML = "";
+        return;
+    }
+
+    fetch(`/buscar?q=${query}`)
+        .then(res => res.json())
+        .then(data => {
+
+            let html = "";
+
+            data.forEach(p => {
+                html += `
+                    <div class="d-flex justify-content-between align-items-center border p-2 mb-2 rounded">
+
+                        <div>
+                            <strong>${p.nombre}</strong><br>
+                            Precio: $${p.precio.toLocaleString('es-CO')}<br>
+                            Stock: ${p.stock}
+                        </div>
+
+                        <button class="btn btn-success btn-sm"
+                            onclick="agregar(${p.id}, '${p.nombre}', ${p.precio}, ${p.stock})">
+                            Agregar
+                        </button>
+
+                    </div>
+                `;
+            });
+
+            document.getElementById("resultados").innerHTML = html;
+        });
+
+});
+
+// ➕ Agregar producto
+function agregar(id, nombre, precio) {
+
+    let cantidad = prompt("Cantidad:");
+    cantidad = parseInt(cantidad);
+
+    if (!cantidad) return;
+
+    let existente = carrito.find(p => p.id === id);
+
+    if (existente) {
+        existente.cantidad += cantidad;
+    } else {
+        carrito.push({id, nombre, precio, cantidad});
+    }
+
+    render();
+}
+
+//  Render carrito
+function render() {
+
+    let html = "";
+    let total = 0;
+
+    carrito.forEach(p => {
+        let subtotal = p.precio * p.cantidad;
+        total += subtotal;
+
+        html += `
+            <tr>
+                <td>${p.nombre}</td>
+                <td>${p.cantidad}</td>
+                <td>$${p.precio.toLocaleString('es-CO')}</td>
+                <td>$${subtotal.toLocaleString('es-CO')}</td>
+            </tr>
+        `;
+    });
+
+    document.getElementById("carrito").innerHTML = html;
+    document.getElementById("total").innerText = total.toLocaleString('es-CO');
+}
+
+//Pagar
+function pagar() {
+
+    // Validar carrito vacío
+    if (carrito.length === 0) {
+        alert("No hay productos en el carrito");
+        return;
+    }
+
+    // Calcular total
+    let total = 0;
+    carrito.forEach(p => {
+        total += p.precio * p.cantidad;
+    });
+
+    // Obtener método de pago
+    let metodo = document.getElementById("metodo_pago").value;
+
+    // Validar efectivo
+    if (metodo === "efectivo") {
+        let recibido = parseFloat(document.getElementById("recibido").value) || 0;
+
+        if (recibido < total) {
+            alert("El dinero recibido es menor al total");
+            return;
+        }
+    }
+
+    // Confirmación
+    if (!confirm("¿Confirmar venta?")) {
+        return;
+    }
+
+    // Enviar al backend
+    fetch('/guardar_venta', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+            carrito: carrito,
+            metodo_pago: metodo
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+
+        // 👇 AQUI VALIDAMOS RESPUESTA DEL BACKEND
+        if (!data.ok) {
+            alert(data.error);
+            return;
+        }
+
+        // 👇 SOLO SI TODO FUE BIEN
+        carrito = [];
+        render();
+
+        document.getElementById("recibido").value = "";
+        document.getElementById("cambio").innerText = "0";
+
+        alert("Venta realizada correctamente");
+    })
+    .catch(error => {
+        console.error(error);
+        alert("Error al guardar la venta");
+    });
+}
+
+document.getElementById("recibido").addEventListener("input", function() {
+
+    let recibido = parseFloat(this.value) || 0;
+
+    let total = 0;
+
+    carrito.forEach(p => {
+        total += p.precio * p.cantidad;
+    });
+
+    let cambio = recibido - total;
+
+    document.getElementById("cambio").innerText =
+        cambio >= 0 ? cambio.toLocaleString('es-CO') : 0;
+});
+
+</script>
+
+{% endblock %}

@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="container mt-4">
+
+    <h3>Entrada de mercancía</h3>
+
+    <form method="POST">
+
+        <div class="mb-3">
+            <label>Producto</label>
+            <select name="id_producto" class="form-control" required>
+                {% for p in productos %}
+                    <option value="{{ p[0] }}">{{ p[1] }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label>Cantidad</label>
+            <input type="number" name="cantidad" class="form-control" required>
+        </div>
+
+        <button class="btn btn-success">Guardar</button>
+        <a href="/inventario" class="btn btn-secondary">Volver</a>
+
+    </form>
+
+</div>
+
+{% endblock %}
