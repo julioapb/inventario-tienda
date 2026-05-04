@@ -125,7 +125,67 @@ def guardar_venta():
 
     mysql.connection.commit()
 
-    return jsonify({"ok": True})
+    return jsonify({"ok": True, "ticket_url": f"/generar_ticket/{id_venta}"})
+
+@ventas_bp.route('/generar_ticket/<int:id_venta>')
+def generar_ticket(id_venta):
+    cursor = mysql.connection.cursor()
+
+    # Obtener datos de la venta
+    cursor.execute("SELECT total, metodo_pago, fecha FROM ventas WHERE id = %s", (id_venta,))
+    venta = cursor.fetchone()
+
+    if not venta:
+        return "Venta no encontrada", 404
+
+    # Obtener detalles
+    cursor.execute("""
+        SELECT p.nombre, dv.cantidad, dv.precio_unitario, dv.subtotal 
+        FROM detalle_venta dv 
+        JOIN productos p ON dv.id_producto = p.id 
+        WHERE dv.id_venta = %s
+    """, (id_venta,))
+    detalles = cursor.fetchall()
+
+    # Crear PDF
+    buffer = io.BytesIO()
+    c = canvas.Canvas(buffer, pagesize=(80*mm, 200*mm))  # Ancho para impresora térmica
+    width, height = 80*mm, 200*mm
+
+    c.setFont("Helvetica", 10)
+    y = height - 20
+
+    # Nombre de la empresa
+    c.drawString(10, y, "PAPELERIA")
+    y -= 20
+
+    # Fecha
+    c.drawString(10, y, f"Fecha: {venta[2]}")
+    y -= 15
+
+    # Productos
+    c.drawString(10, y, "Productos:")
+    y -= 15
+
+    for det in detalles:
+        nombre = det[0][:20]  # Cortar nombre si es largo
+        c.drawString(10, y, f"{nombre} x{det[1]} ${det[3]}")
+        y -= 12
+
+    y -= 10
+
+    # Total
+    c.drawString(10, y, f"Total: ${venta[0]}")
+    y -= 15
+
+    # Método de pago
+    c.drawString(10, y, f"Pago: {venta[1]}")
+
+    c.showPage()
+    c.save()
+    buffer.seek(0)
+
+    return send_file(buffer, as_attachment=False, mimetype='application/pdf')
 
 @ventas_bp.route('/cerrar_caja', methods=['POST'])
 def cerrar_caja():

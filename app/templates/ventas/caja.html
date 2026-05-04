@@ -213,7 +213,10 @@ function pagar() {
         document.getElementById("recibido").value = "";
         document.getElementById("cambio").innerText = "0";
 
-        alert("Venta realizada correctamente");
+        // Abrir ticket en nueva pestaña
+        window.open(data.ticket_url, '_blank');
+
+        alert("Venta realizada correctamente. Ticket generado.");
     })
     .catch(error => {
         console.error(error);
