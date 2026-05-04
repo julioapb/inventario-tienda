@@ -149,8 +149,12 @@ def generar_ticket(id_venta):
 
     # Crear PDF
     buffer = io.BytesIO()
-    c = canvas.Canvas(buffer, pagesize=(80*mm, 200*mm))  # Ancho para impresora térmica
-    width, height = 80*mm, 200*mm
+    # Calcular altura basada en productos (aprox 12 por línea)
+    altura_base = 80  # Espacio para header y footer
+    altura_productos = len(detalles) * 12
+    altura_total = max(altura_base + altura_productos, 100)  # Mínimo 100mm
+    c = canvas.Canvas(buffer, pagesize=(80*mm, altura_total*mm))
+    width, height = 80*mm, altura_total*mm
 
     c.setFont("Helvetica", 10)
     y = height - 20
