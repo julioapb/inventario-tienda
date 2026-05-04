@@ -10,53 +10,50 @@
 
 <body class="bg-light">
     {% if session.get('usuario') %}
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <div class="container-fluid">
-
-            <a class="navbar-brand" href="/caja">
-                <img src="{{ url_for('static', filename='img/logo.jpeg') }}" alt="Logo" style="height: 40px;">
-            </a>
-
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#menu">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-
-            <div class="collapse navbar-collapse" id="menu">
-
-                <ul class="navbar-nav me-auto">
-
-                    <li class="nav-item">
-                        <a class="nav-link" href="/caja">Caja</a>
+    <!-- Sidebar lateral -->
+    <div class="d-flex">
+        <div class="bg-dark text-white" style="width: 200px; height: 100vh; position: fixed; top: 0; left: 0; overflow-y: auto;">
+            <div class="p-3">
+                <a href="/caja" class="d-block mb-4">
+                    <img src="{{ url_for('static', filename='img/logo.jpeg') }}" alt="Logo" style="height: 60px;">
+                </a>
+                <ul class="nav flex-column">
+                    <li class="nav-item mb-2">
+                        <a class="nav-link text-white" href="/caja">Caja</a>
                     </li>
-
-                    <li class="nav-item">
-                        <a class="nav-link" href="/productos">Productos</a>
+                    <li class="nav-item mb-2">
+                        <a class="nav-link text-white" href="/productos">Productos</a>
                     </li>
-
-                    <li class="nav-item">
-                        <a class="nav-link" href="/inventario">Inventario</a>
+                    <li class="nav-item mb-2">
+                        <a class="nav-link text-white" href="/inventario">Inventario</a>
                     </li>
-
-                    <li class="nav-item">
-                        <a class="nav-link" href="/inventario/movimientos">Movimientos</a>
+                    <li class="nav-item mb-2">
+                        <a class="nav-link text-white" href="/inventario/movimientos">Movimientos</a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/cierres">Historial cierres</a>
+                    <li class="nav-item mb-2">
+                        <a class="nav-link text-white" href="/cierres">Historial cierres</a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/cierre">Cierre</a>
+                    <li class="nav-item mb-2">
+                        <a class="nav-link text-white" href="/cierre">Cierre</a>
                     </li>
                 </ul>
-                <span class="navbar-text me-3">
-                    {{ session['usuario'] }}
-                </span>
-                <a href="/logout" class="btn btn-danger btn-sm">Salir</a>
+                <hr class="text-white">
+                <div class="text-center">
+                    <span class="d-block mb-2">{{ session['usuario'] }}</span>
+                    <a href="/logout" class="btn btn-danger btn-sm">Salir</a>
+                </div>
             </div>
         </div>
-    </nav>
+        <!-- Contenido principal -->
+        <div class="flex-fill" style="margin-left: 200px;">
     {% endif %}
 
     {% block content %}{% endblock %}
+
+    {% if session.get('usuario') %}
+        </div>
+    </div>
+    {% endif %}
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
