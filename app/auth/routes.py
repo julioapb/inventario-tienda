@@ -21,7 +21,7 @@ def login():
 
         if user:
             session['usuario'] = username
-            return redirect('/inventario')
+            return redirect('/caja')
         else:
             error = "Usuario o contraseña incorrectos"
 
