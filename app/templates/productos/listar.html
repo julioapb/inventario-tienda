@@ -4,12 +4,26 @@
 
 {% block content %}
 
-<div class="container mt-4">
-
-    <div class="d-flex justify-content-between mb-3">
-        <h3>Productos</h3>
-        <a href="/productos/nuevo" class="btn btn-success">+ Nuevo producto</a>
-    </div>
+    <div class="container mt-4">
+        <div class="d-flex justify-content-between align-items-start mb-3">
+            <h3>Productos</h3>
+            <div class="d-flex flex-column gap-2">
+                <a href="{{ url_for('productos.nuevo_producto') }}" class="btn btn-success">
+                + Nuevo producto
+                </a>
+                <form action="{{ url_for('productos.cargar_excel') }}" 
+                    method="POST" enctype="multipart/form-data" class="d-flex gap-2">
+                    <input type="file" name="archivo" class="form-control form-control-sm" required>
+                    <button type="submit" class="btn btn-primary btn-sm">
+                    Subir Excel
+                    </button>
+                </form>
+                <div class="alert alert-info py-2 px-3 mb-0">
+                    Estructura del Excel: 
+                    <strong>nombre | sku | precio_compra | precio_venta</strong>
+                </div>
+            </div>
+        </div>
     <form method="GET" class="mb-3 d-flex">
         <input type="text" name="q" class="form-control me-2"
             placeholder="Buscar producto"

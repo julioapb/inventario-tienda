@@ -1,6 +1,11 @@
 from flask import Blueprint, render_template, request, jsonify, session, redirect
 from app.db import mysql
 from datetime import date
+from reportlab.lib.pagesizes import mm
+from reportlab.pdfgen import canvas
+from flask import send_file
+import io
+from datetime import datetime
 
 ventas_bp = Blueprint('ventas', __name__)
 

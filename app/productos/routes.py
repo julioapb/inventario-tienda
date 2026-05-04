@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, redirect, session
+from flask import Blueprint, render_template, request, redirect, session, url_for
 from app.db import mysql
 
 productos_bp = Blueprint('productos', __name__)
@@ -105,3 +105,46 @@ def editar_producto(id):
     producto = cursor.fetchone()
 
     return render_template('productos/formulario.html', titulo="Editar producto", producto=producto)
+
+
+#CARGAR POR EXCEL
+@productos_bp.route('/cargar_excel', methods=['POST'])
+def cargar_excel():
+
+    archivo = request.files['archivo']
+
+    if not archivo:
+        return "No se envió archivo"
+
+    import pandas as pd
+    df = pd.read_excel(archivo)
+
+    cursor = mysql.connection.cursor()
+
+    insertados = 0
+    duplicados = 0
+
+    for index, row in df.iterrows():
+        nombre = row['nombre']
+        sku = str(row['sku'])
+        precio_compra = row['precio_compra']
+        precio_venta = row['precio_venta']
+
+        # 🔍 Validar si ya existe el SKU
+        cursor.execute("SELECT id FROM productos WHERE sku = %s", (sku,))
+        existe = cursor.fetchone()
+
+        if existe:
+            duplicados += 1
+            continue
+
+        cursor.execute("""
+            INSERT INTO productos (nombre, sku, precio_compra, precio_venta)
+            VALUES (%s, %s, %s, %s)
+        """, (nombre, sku, precio_compra, precio_venta))
+
+        insertados += 1
+
+    mysql.connection.commit()
+
+    return f"Insertados: {insertados} | Duplicados: {duplicados}"
