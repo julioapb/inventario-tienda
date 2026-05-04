@@ -32,6 +32,7 @@ El sistema permite controlar productos, stock, ventas diarias y cierres de caja 
 - Registro de cierres
 - Historial de cierres de caja
 
+### Carga masiva de productos desde Excel
 ---
 
 ## Tecnologías utilizadas
